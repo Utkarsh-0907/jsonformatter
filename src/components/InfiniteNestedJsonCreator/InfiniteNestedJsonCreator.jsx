@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import JsonItemForm from "../JsonItemForm";
 import "./styles/InfiniteNestedJsonCreator.css";
 
 const generateUniqueId = () =>
@@ -15,22 +16,14 @@ const RecursiveJsonItem = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editKey, setEditKey] = useState(item.key);
   const [editValue, setEditValue] = useState(item.value);
-  const [localKey, setLocalKey] = useState("");
-  const [localValue, setLocalValue] = useState("");
 
-  const handleAddChild = () => {
-    if (!localKey || !localValue) {
-      alert("Please enter both key and value");
-      return;
-    }
+  const handleAddChild = (childData) => {
     onAddChild(item.id, {
       id: generateUniqueId(),
-      key: localKey,
-      value: localValue,
+      key: childData.key,
+      value: childData.value,
       children: [],
     });
-    setLocalKey("");
-    setLocalValue("");
   };
 
   const handleEdit = () => {
@@ -88,23 +81,12 @@ const RecursiveJsonItem = ({
       </div>
       {isExpanded && !isEditing && (
         <div className="nested-item-content">
-          <div className="child-inputs">
-            <input
-              type="text"
-              placeholder="Child Key"
-              value={localKey}
-              onChange={(e) => setLocalKey(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Child Value"
-              value={localValue}
-              onChange={(e) => setLocalValue(e.target.value)}
-            />
-            <button onClick={handleAddChild} className="add-btn">
-              Add Child
-            </button>
-          </div>
+          <JsonItemForm
+            onSubmit={handleAddChild}
+            submitButtonText="Add Child"
+            placeholderKey="Child Key"
+            placeholderValue="Child Value"
+          />
           {item.children.map((child) => (
             <RecursiveJsonItem
               key={child.id}
@@ -123,26 +105,18 @@ const RecursiveJsonItem = ({
 
 const InfiniteNestedJsonCreator = () => {
   const [jsonData, setJsonData] = useState([]);
-  const [currentKey, setCurrentKey] = useState("");
-  const [currentValue, setCurrentValue] = useState("");
   const [preview, setPreview] = useState("");
 
-  const addTopLevelItem = () => {
-    if (!currentKey || !currentValue) {
-      alert("Please enter both key and value");
-      return;
-    }
+  const addTopLevelItem = (itemData) => {
     setJsonData((prev) => [
       ...prev,
       {
         id: generateUniqueId(),
-        key: currentKey,
-        value: currentValue,
+        key: itemData.key,
+        value: itemData.value,
         children: [],
       },
     ]);
-    setCurrentKey("");
-    setCurrentValue("");
   };
 
   const addChildRecursively = (parentId, newChild) => {
@@ -181,21 +155,7 @@ const InfiniteNestedJsonCreator = () => {
   return (
     <div className="json-creator-container">
       <div className="top-level-inputs">
-        <input
-          type="text"
-          placeholder="Key"
-          value={currentKey}
-          onChange={(e) => setCurrentKey(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Value"
-          value={currentValue}
-          onChange={(e) => setCurrentValue(e.target.value)}
-        />
-        <button onClick={addTopLevelItem} className="add-top-btn">
-          Add Top-Level Item
-        </button>
+        <JsonItemForm onSubmit={addTopLevelItem} submitButtonText="Add" />
       </div>
       <div className="nested-items">
         {jsonData.map((item) => (
